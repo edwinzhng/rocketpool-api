@@ -15,7 +15,7 @@ cache = redis.Redis(host="redis", port=settings.redis_port)
 app.state.cache = cache
 
 
-@app.get("/api/v1/status", status_code=200)
+@app.get("/v1/status", status_code=200)
 async def get_status():
     return
 
