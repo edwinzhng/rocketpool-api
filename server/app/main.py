@@ -1,4 +1,5 @@
 import asyncio
+import pickle
 
 import redis
 from fastapi import FastAPI, Request
@@ -21,16 +22,18 @@ async def get_status():
 
 @app.get("/v1/node/stats", status_code=200, response_model=NodeStats)
 async def get_node_stats(req: Request):
-    cache = req.app.state.cache
-    return NodeStats()
+    stats = req.app.state.cache.get(settings.redis_node_stats_key)
+    stats = pickle.loads(stats)
+    return NodeStats(**stats)
 
 
 @app.get("/v1/staker/stats", status_code=200, response_model=StakerStats)
 async def get_staker_stats(req: Request):
-    cache = req.app.state.cache
-    return StakerStats()
+    stats = req.app.state.cache.get(settings.redis_staker_stats_key)
+    stats = pickle.loads(stats)
+    return StakerStats(**stats)
 
 
 @app.on_event("startup")
 async def startup_event():
-    asyncio.create_task(fetch_subgraph_data(settings.subgraph_sleep_sec))
+    asyncio.create_task(fetch_subgraph_data(cache, settings.subgraph_sleep_sec))

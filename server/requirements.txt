@@ -1,5 +1,6 @@
 aiohttp==3.8.1
 fastapi==0.70.1
+gql==3.0.0rc
 pyhumps==3.0.2
 pydantic>=1.8.2
 redis==4.0.2
