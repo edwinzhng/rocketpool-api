@@ -17,8 +17,10 @@ services:
         "--port", "${API_PORT}",
         "--workers", "${NUM_WORKERS}"
       ]
+    restart: always
   redis:
     image: "redis:alpine"
     ports:
         - "${REDIS_PORT}:${REDIS_PORT}"
     command: redis-server --port ${REDIS_PORT}
+    restart: always
