@@ -29,14 +29,13 @@ async def fetch_subgraph_data(cache: Redis, sleep_sec: int):
             try:
                 data = await session.execute(latest_stats_query)
                 data = data["rocketPoolProtocols"][0]
-                node_stats = _transform_stats(data["lastNetworkNodeBalanceCheckPoint"])
-                staker_stats = _transform_stats(
-                    data["lastNetworkStakerBalanceCheckPoint"]
-                )
+                node_stats = data["lastNetworkNodeBalanceCheckPoint"]
+                staker_stats = data["lastNetworkStakerBalanceCheckPoint"]
 
-                # Compute APY
                 reth_apy = await _compute_reth_apy(session, staker_stats)
                 staker_stats["rethApy"] = reth_apy
+                node_stats = _transform_stats(node_stats)
+                staker_stats = _transform_stats(staker_stats)
 
                 # Save stats to Redis
                 if node_stats and staker_stats:

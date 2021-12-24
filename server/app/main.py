@@ -4,6 +4,7 @@ import pickle
 
 import redis
 from fastapi import FastAPI, Request
+from fastapi.middleware.cors import CORSMiddleware
 
 from app.models import NodeStats, StakerStats
 from app.settings import settings
@@ -15,6 +16,15 @@ logging.basicConfig(level=logging.INFO)
 
 # Global state for reusable services
 app.state.cache = cache
+
+# Set CORS
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
 
 
 @app.get("/v1/status", status_code=200)
