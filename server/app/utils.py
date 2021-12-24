@@ -1,4 +1,5 @@
 import asyncio
+import logging
 import pickle
 from typing import Dict
 
@@ -25,16 +26,24 @@ async def fetch_subgraph_data(cache: Redis, sleep_sec: int):
         async with Client(
             transport=transport, fetch_schema_from_transport=False,
         ) as session:
-            data = await session.execute(latest_stats_query)
-            data = data["rocketPoolProtocols"][0]
+            try:
+                data = await session.execute(latest_stats_query)
+                data = data["rocketPoolProtocols"][0]
+                node_stats = _transform_stats(data["lastNetworkNodeBalanceCheckPoint"])
+                staker_stats = _transform_stats(
+                    data["lastNetworkStakerBalanceCheckPoint"]
+                )
 
-            node_stats = data["lastNetworkNodeBalanceCheckPoint"]
-            staker_stats = data["lastNetworkStakerBalanceCheckPoint"]
-            reth_apy = await _compute_reth_apy(session, staker_stats)
-            staker_stats["rethApy"] = reth_apy
+                # Compute APY
+                reth_apy = await _compute_reth_apy(session, staker_stats)
+                staker_stats["rethApy"] = reth_apy
 
-            cache.set(settings.redis_node_stats_key, _transform_stats(node_stats))
-            cache.set(settings.redis_staker_stats_key, _transform_stats(staker_stats))
+                # Save stats to Redis
+                if node_stats and staker_stats:
+                    cache.set(settings.redis_node_stats_key, node_stats)
+                    cache.set(settings.redis_staker_stats_key, staker_stats)
+            except Exception as e:
+                logging.info(e)
 
         await asyncio.sleep(sleep_sec)
 

@@ -9,6 +9,6 @@ class Settings(BaseSettings):
     subgraph_sleep_sec: int = os.environ.get("SUBGRAPH_UPDATE_SLEEP_SEC")
     redis_node_stats_key: str = "RP_NODE_STATS"
     redis_staker_stats_key: str = "RP_STAKER_STATS"
-
+    redis_expiry_sec: int = 7200
 
 settings = Settings()

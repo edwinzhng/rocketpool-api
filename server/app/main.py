@@ -1,4 +1,5 @@
 import asyncio
+import logging
 import pickle
 
 import redis
@@ -10,6 +11,7 @@ from app.utils import fetch_subgraph_data
 
 app = FastAPI()
 cache = redis.Redis(host="redis", port=settings.redis_port)
+logging.basicConfig(level=logging.INFO)
 
 # Global state for reusable services
 app.state.cache = cache
